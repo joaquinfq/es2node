@@ -1,0 +1,30 @@
+{{#if imports}}
+{{#each imports}}
+const {{ name }}{{spaces ../imports "name"}} = require('{{ value }}');
+{{/each}}
+
+{{/if}}
+{{#each blocks}}
+{{#if desc}}
+{{ desc }}
+{{/if}}
+{{#if class}}
+class {{ value }}{{#if super}} extends {{ super }}{{/if}}
+{
+{{#each methods}}
+{{ this }}
+{{#unless @last}}
+
+{{/unless}}
+{{/each}}
+}
+{{#if exports}}
+
+module.exports = {{ value }};
+{{/if}}
+{{/if}}
+{{#if statement}}
+
+{{#if exports}}module.exports = {{/if}}{{ value }}
+{{/if}}
+{{/each}}
