@@ -2,9 +2,9 @@
 {{#each imports}}
 const {{ name }}{{spaces ../imports "name"}} = require('{{ value }}');
 {{/each}}
-
 {{/if}}
 {{#each blocks}}
+
 {{#if desc}}
 {{ desc }}
 {{/if}}
@@ -24,7 +24,6 @@ module.exports = {{ value }};
 {{/if}}
 {{/if}}
 {{#if statement}}
-
 {{#if exports}}module.exports = {{/if}}{{ value }}
 {{/if}}
 {{/each}}
