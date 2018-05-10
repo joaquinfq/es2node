@@ -55,14 +55,17 @@ function parseNode(node)
                     parseNode(node.body);
                 }
                 _block.exports = node.exports;
-                _block.super = parseNode(node.superClass);
-                const _properties = Object.values(_block.properties);
-                if (_properties.length)
+                _block.super   = parseNode(node.superClass);
+                const _names   = Object.keys(_block.properties);
+                if (_names.length)
                 {
                     const _constructor = _block.methods.constructor;
                     if (typeof _constructor === 'string' && _constructor.includes('super('))
                     {
-                        _properties.sort((i1, i2) => i1.toLowerCase().localeCompare(i2.toLowerCase()));
+                        const _properties = _block.properties;
+                        _block.properties = _names
+                            .sort((i1, i2) => i1.toLowerCase().localeCompare(i2.toLowerCase()))
+                            .map(name => _properties[name]);
                         _block.methods.constructor = _constructor.replace(
                             /^(\s+)super\([^)]*\);/m,
                             (line, indentation) => helpersHbs.render(
@@ -70,7 +73,7 @@ function parseNode(node)
                                 path.join(__dirname, '..', 'tpl', 'properties.hbs'),
                                 {
                                     indentation,
-                                    properties : _properties,
+                                    properties : _block.properties,
                                     super      : line
                                 }
                             )
@@ -80,15 +83,19 @@ function parseNode(node)
                 break;
             case 'ClassMethod':
             case 'ClassProperty':
-                const _value = `    ${parseComments(node).join('\n')}\n    ${getSourceBlock(node)}`;
-                if (node.type === 'ClassMethod')
+                let   _code   = getSourceBlock(node);
+                const _isProp = node.type === 'ClassProperty';
+                let   _key;
+                if (_isProp)
                 {
-                    block.methods[parseNode(node.key)] = _value;
+                    _code = `this.${_code}`;
+                    _key  = 'properties';
                 }
                 else
                 {
-                    block.properties[parseNode(node.key)] = _value;
+                    _key = 'methods';
                 }
+                block[_key][parseNode(node.key)] = `    ${parseComments(node).join('\n')}\n    ${_code}`;
                 break;
             case 'ExportDefaultDeclaration':
                 const _declaration = node.declaration;
